@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { ConsentModal } from '@/components/ConsentModal';
+import { useMedical } from '@/contexts/MedicalContext';
 import { uploadFHIRBundle } from '@/lib/api';
 import { 
   Upload as UploadIcon, 
@@ -11,7 +13,8 @@ import {
   CheckCircle, 
   AlertCircle,
   Clock,
-  Database
+  Database,
+  Shield
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,6 +23,8 @@ export default function Upload() {
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadResponse, setUploadResponse] = useState<any>(null);
+  const [showConsentModal, setShowConsentModal] = useState(false);
+  const { selectedDiagnoses } = useMedical();
   const { toast } = useToast();
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,6 +65,16 @@ export default function Upload() {
       });
       return;
     }
+
+    // Show consent modal if we have diagnoses to preview
+    if (selectedDiagnoses.length > 0) {
+      setShowConsentModal(true);
+    } else {
+      performUpload();
+    }
+  };
+
+  const performUpload = async () => {
 
     setUploadStatus('uploading');
     setUploadProgress(0);
@@ -180,23 +195,23 @@ export default function Upload() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-2">
-                  <Button
-                    onClick={handleUpload}
-                    disabled={!bundleContent.trim() || uploadStatus === 'uploading'}
-                    className="flex-1"
-                  >
-                    {uploadStatus === 'uploading' ? (
-                      <>
-                        <Clock className="h-4 w-4 mr-2 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <UploadIcon className="h-4 w-4 mr-2" />
-                        Upload Bundle
-                      </>
-                    )}
-                  </Button>
+                <Button
+                  onClick={handleUpload}
+                  disabled={!bundleContent.trim() || uploadStatus === 'uploading'}
+                  className="flex-1"
+                >
+                  {uploadStatus === 'uploading' ? (
+                    <>
+                      <Clock className="h-4 w-4 mr-2 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Shield className="h-4 w-4 mr-2" />
+                      Upload with Consent
+                    </>
+                  )}
+                </Button>
                   
                   {bundleContent && (
                     <Button variant="outline" onClick={handleReset}>
@@ -268,9 +283,17 @@ export default function Upload() {
                         <p className="text-sm text-muted-foreground">
                           {uploadResponse.message}
                         </p>
-                      </div>
-                    </div>
-                  </div>
+          </div>
+        </div>
+
+        {/* Consent Modal */}
+        <ConsentModal
+          isOpen={showConsentModal}
+          onClose={() => setShowConsentModal(false)}
+          onConfirm={performUpload}
+          diagnoses={selectedDiagnoses}
+        />
+      </div>
                 )}
 
                 {uploadStatus === 'error' && uploadResponse && (

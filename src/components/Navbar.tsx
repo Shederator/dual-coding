@@ -8,6 +8,7 @@ import {
   FileText, 
   Upload, 
   Settings,
+  Shield,
   Moon,
   Sun
 } from 'lucide-react';
@@ -17,6 +18,7 @@ const navigation = [
   { name: 'Search', href: '/search', icon: Search },
   { name: 'Problem List', href: '/problems', icon: FileText },
   { name: 'Upload', href: '/upload', icon: Upload },
+  { name: 'Audit', href: '/audit', icon: Shield },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 

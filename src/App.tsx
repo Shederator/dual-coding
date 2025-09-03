@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 import Search from "./pages/Search";
 import ProblemList from "./pages/ProblemList";
 import Upload from "./pages/Upload";
+import Audit from "./pages/Audit";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +32,7 @@ const App = () => (
                   <Route path="/search" element={<Search />} />
                   <Route path="/problems" element={<ProblemList />} />
                   <Route path="/upload" element={<Upload />} />
+                  <Route path="/audit" element={<Audit />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>

@@ -13,6 +13,7 @@ export interface ICD11Code {
 export interface MedicalTerminology {
   namaste: NAMASTECode;
   icd11: ICD11Code;
+  confidence?: 'exact' | 'related' | 'uncertain';
   id?: string;
 }
 

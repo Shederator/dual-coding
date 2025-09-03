@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { getAdminStatus, triggerSync } from '@/lib/api';
+import { useMedical } from '@/contexts/MedicalContext';
 import type { AdminStatus } from '@/types/medical';
 import { 
   Settings as SettingsIcon, 
@@ -24,6 +25,7 @@ export default function Settings() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
   const [useSandbox, setUseSandbox] = useState(true);
+  const { demoMode, setDemoMode } = useMedical();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -227,6 +229,21 @@ export default function Settings() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
+                    <label className="text-sm font-medium">Use Demo Mode</label>
+                    <p className="text-xs text-muted-foreground">
+                      Use mock data only (recommended for demonstrations)
+                    </p>
+                  </div>
+                  <Switch
+                    checked={demoMode}
+                    onCheckedChange={setDemoMode}
+                  />
+                </div>
+
+                <Separator />
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
                     <label className="text-sm font-medium">Use Sandbox Environment</label>
                     <p className="text-xs text-muted-foreground">
                       Toggle between sandbox and production APIs
@@ -235,6 +252,7 @@ export default function Settings() {
                   <Switch
                     checked={useSandbox}
                     onCheckedChange={setUseSandbox}
+                    disabled={demoMode}
                   />
                 </div>
 
@@ -246,28 +264,35 @@ export default function Settings() {
                     <span className="text-sm font-medium">Current Endpoints:</span>
                   </div>
                   
-                  <div className="space-y-2 pl-6 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">NAMASTE API:</span>
-                      <Badge variant="outline" className="text-xs">
-                        {useSandbox ? 'Sandbox' : 'Production'}
-                      </Badge>
-                    </div>
+                    <div className="space-y-2 pl-6 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Mode:</span>
+                        <Badge variant="outline" className="text-xs">
+                          {demoMode ? 'Demo Only' : (useSandbox ? 'Sandbox' : 'Production')}
+                        </Badge>
+                      </div>
                     
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">WHO ICD API:</span>
-                      <Badge variant="outline" className="text-xs">
-                        {useSandbox ? 'Sandbox' : 'Production'}
-                      </Badge>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">NAMASTE API:</span>
+                        <Badge variant="outline" className="text-xs">
+                          {demoMode ? 'Mock Data' : (useSandbox ? 'Sandbox' : 'Production')}
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">WHO ICD API:</span>
+                        <Badge variant="outline" className="text-xs">
+                          {demoMode ? 'Mock Data' : (useSandbox ? 'Sandbox' : 'Production')}
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">FHIR Server:</span>
+                        <Badge variant="outline" className="text-xs">
+                          {demoMode ? 'Mock Data' : (useSandbox ? 'Test' : 'Live')}
+                        </Badge>
+                      </div>
                     </div>
-                    
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">FHIR Server:</span>
-                      <Badge variant="outline" className="text-xs">
-                        {useSandbox ? 'Test' : 'Live'}
-                      </Badge>
-                    </div>
-                  </div>
                 </div>
               </CardContent>
             </Card>

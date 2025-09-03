@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { useMedical } from '@/contexts/MedicalContext';
 import { searchTerminology } from '@/lib/api';
-import { Search as SearchIcon, Plus, Loader2 } from 'lucide-react';
+import { Search as SearchIcon, Plus, Loader2, CheckCircle, AlertTriangle, HelpCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Search() {
@@ -52,6 +52,28 @@ export default function Search() {
       title: "Diagnosis Added",
       description: `${terminology.namaste.display} has been added to your problem list.`,
     });
+  };
+
+  const getConfidenceIcon = (confidence?: string) => {
+    switch (confidence) {
+      case 'exact':
+        return <CheckCircle className="h-4 w-4 text-success" />;
+      case 'related':
+        return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+      case 'uncertain':
+        return <HelpCircle className="h-4 w-4 text-muted-foreground" />;
+      default:
+        return <HelpCircle className="h-4 w-4 text-muted-foreground" />;
+    }
+  };
+
+  const getConfidenceBadgeColor = (confidence?: string) => {
+    switch (confidence) {
+      case 'exact': return 'bg-success text-success-foreground';
+      case 'related': return 'bg-yellow-500 text-white';
+      case 'uncertain': return 'bg-muted-foreground text-white';
+      default: return 'bg-muted-foreground text-white';
+    }
   };
 
   return (
@@ -110,6 +132,12 @@ export default function Search() {
                         <Badge variant="outline" className="bg-accent/10">
                           ICD-11: {result.icd11.code}
                         </Badge>
+                        <div className="flex items-center gap-1">
+                          {getConfidenceIcon(result.confidence)}
+                          <Badge className={getConfidenceBadgeColor(result.confidence)}>
+                            {result.confidence?.toUpperCase() || 'UNCERTAIN'}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
                     
@@ -144,6 +172,12 @@ export default function Search() {
                       <p className="text-sm text-muted-foreground">
                         <strong>Term:</strong> {result.icd11.display}
                       </p>
+                      <div className="flex items-center gap-1 mt-2">
+                        {getConfidenceIcon(result.confidence)}
+                        <span className="text-xs text-muted-foreground">
+                          Mapping confidence: <strong>{result.confidence || 'uncertain'}</strong>
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </CardContent>

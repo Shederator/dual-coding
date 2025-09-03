@@ -6,6 +6,7 @@ interface MedicalState {
   searchResults: MedicalTerminology[];
   isLoading: boolean;
   error: string | null;
+  demoMode: boolean;
 }
 
 type MedicalAction =
@@ -15,13 +16,15 @@ type MedicalAction =
   | { type: 'ADD_DIAGNOSIS'; payload: MedicalTerminology }
   | { type: 'REMOVE_DIAGNOSIS'; payload: string }
   | { type: 'CLEAR_DIAGNOSES' }
-  | { type: 'UPDATE_DIAGNOSIS'; payload: DiagnosisEntry };
+  | { type: 'UPDATE_DIAGNOSIS'; payload: DiagnosisEntry }
+  | { type: 'SET_DEMO_MODE'; payload: boolean };
 
 const initialState: MedicalState = {
   selectedDiagnoses: [],
   searchResults: [],
   isLoading: false,
   error: null,
+  demoMode: true, // Default to demo mode
 };
 
 function medicalReducer(state: MedicalState, action: MedicalAction): MedicalState {
@@ -56,6 +59,8 @@ function medicalReducer(state: MedicalState, action: MedicalAction): MedicalStat
           d.id === action.payload.id ? action.payload : d
         ),
       };
+    case 'SET_DEMO_MODE':
+      return { ...state, demoMode: action.payload };
     default:
       return state;
   }
@@ -69,6 +74,7 @@ interface MedicalContextType extends MedicalState {
   setSearchResults: (results: MedicalTerminology[]) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  setDemoMode: (demoMode: boolean) => void;
 }
 
 const MedicalContext = createContext<MedicalContextType | undefined>(undefined);
@@ -85,6 +91,7 @@ export function MedicalProvider({ children }: { children: ReactNode }) {
     setSearchResults: (results) => dispatch({ type: 'SET_SEARCH_RESULTS', payload: results }),
     setLoading: (loading) => dispatch({ type: 'SET_LOADING', payload: loading }),
     setError: (error) => dispatch({ type: 'SET_ERROR', payload: error }),
+    setDemoMode: (demoMode) => dispatch({ type: 'SET_DEMO_MODE', payload: demoMode }),
   };
 
   return (

@@ -2,13 +2,12 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
 import { useMedical } from '@/contexts/MedicalContext';
 import { generateFHIRBundle } from '@/lib/fhir';
+import { FHIRViewer } from '@/components/FHIRViewer';
 import { 
   FileText, 
   Trash2, 
-  Download, 
   Code, 
   Calendar,
   StickyNote
@@ -18,8 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function ProblemList() {
   const { selectedDiagnoses, removeDiagnosis, clearDiagnoses } = useMedical();
   const { toast } = useToast();
-  const [showFHIRPreview, setShowFHIRPreview] = useState(false);
-  const [fhirBundle, setFhirBundle] = useState<string>('');
+  const [fhirBundle, setFhirBundle] = useState<any>(null);
 
   const handleExportFHIR = () => {
     if (selectedDiagnoses.length === 0) {
@@ -32,9 +30,7 @@ export default function ProblemList() {
     }
 
     const bundle = generateFHIRBundle(selectedDiagnoses);
-    const bundleJson = JSON.stringify(bundle, null, 2);
-    setFhirBundle(bundleJson);
-    setShowFHIRPreview(true);
+    setFhirBundle(bundle);
     
     toast({
       title: "FHIR Bundle Generated",
@@ -43,7 +39,10 @@ export default function ProblemList() {
   };
 
   const handleDownloadBundle = () => {
-    const blob = new Blob([fhirBundle], { type: 'application/json' });
+    if (!fhirBundle) return;
+    
+    const bundleJson = JSON.stringify(fhirBundle, null, 2);
+    const blob = new Blob([bundleJson], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -61,8 +60,7 @@ export default function ProblemList() {
 
   const handleClearAll = () => {
     clearDiagnoses();
-    setShowFHIRPreview(false);
-    setFhirBundle('');
+    setFhirBundle(null);
     toast({
       title: "Problem List Cleared",
       description: "All diagnoses have been removed from your problem list.",
@@ -187,43 +185,7 @@ export default function ProblemList() {
 
           {/* FHIR Preview */}
           <div>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <Code className="h-5 w-5" />
-                    FHIR Bundle Preview
-                  </span>
-                  {showFHIRPreview && (
-                    <Button size="sm" onClick={handleDownloadBundle}>
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                  )}
-                </CardTitle>
-                <CardDescription>
-                  JSON representation of your problem list in FHIR format
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {showFHIRPreview ? (
-                  <Textarea
-                    value={fhirBundle}
-                    readOnly
-                    className="min-h-[400px] font-mono text-xs"
-                    placeholder="FHIR bundle will appear here..."
-                  />
-                ) : (
-                  <div className="text-center py-12">
-                    <Code className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium mb-2">No bundle generated</h3>
-                    <p className="text-muted-foreground">
-                      Click "Export FHIR" to generate a bundle from your problem list
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <FHIRViewer bundle={fhirBundle} onDownload={handleDownloadBundle} />
           </div>
         </div>
       </div>
