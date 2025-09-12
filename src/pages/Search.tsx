@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useMedical } from '@/contexts/MedicalContext';
-import { searchTerminology } from '@/lib/api';
 import { Search as SearchIcon, Plus, Loader2, CheckCircle, AlertTriangle, HelpCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -23,8 +22,26 @@ export default function Search() {
     setError(null);
     
     try {
-      const results = await searchTerminology(searchQuery);
-      setSearchResults(results);
+      // Mock search results for demonstration
+      const mockResults = [
+        {
+          namaste: { code: "NAM:0001", display: "Shiro-ruja", system: "demo-namaste-system" },
+          icd11: { code: "1435254666", display: "Migraine", system: "demo-icd11-system" },
+          confidence: 'exact' as const
+        },
+        {
+          namaste: { code: "NAM:0020", display: "Amlapitta", system: "demo-namaste-system" },
+          icd11: { code: "1214563220", display: "Gastro-esophageal reflux disease", system: "demo-icd11-system" },
+          confidence: 'exact' as const
+        }
+      ].filter(term =>
+        term.namaste.display.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        term.namaste.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        term.icd11.display.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        term.icd11.code.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      
+      setSearchResults(mockResults);
     } catch (error) {
       setError('Failed to search terminology');
       toast({

@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useMedical } from '@/contexts/MedicalContext';
-import { generateFHIRBundle } from '@/lib/fhir';
 import { FHIRViewer } from '@/components/FHIRViewer';
 import { 
   FileText, 
@@ -29,7 +28,39 @@ export default function ProblemList() {
       return;
     }
 
-    const bundle = generateFHIRBundle(selectedDiagnoses);
+    // Generate FHIR bundle locally
+    const bundleId = crypto.randomUUID();
+    const timestamp = new Date().toISOString();
+
+    const bundle = {
+      resourceType: "Bundle",
+      id: bundleId,
+      meta: {
+        lastUpdated: timestamp
+      },
+      type: "collection",
+      entry: selectedDiagnoses.map((diagnosis, index) => ({
+        resource: {
+          resourceType: "Condition",
+          id: `condition-${index + 1}`,
+          code: {
+            coding: [
+              {
+                system: diagnosis.namaste.system || "demo-namaste-system",
+                code: diagnosis.namaste.code,
+                display: diagnosis.namaste.display
+              },
+              {
+                system: diagnosis.icd11.system || "demo-icd11-system",
+                code: diagnosis.icd11.code,
+                display: diagnosis.icd11.display
+              }
+            ]
+          }
+        }
+      }))
+    };
+    
     setFhirBundle(bundle);
     
     toast({

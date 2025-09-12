@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ConsentModal } from '@/components/ConsentModal';
 import { useMedical } from '@/contexts/MedicalContext';
-import { uploadFHIRBundle } from '@/lib/api';
 import { 
   Upload as UploadIcon, 
   FileText, 
@@ -92,12 +91,19 @@ export default function Upload() {
 
     try {
       const bundle = JSON.parse(bundleContent);
-      const response = await uploadFHIRBundle(bundle);
+      
+      // Mock upload response
+      const mockResponse = {
+        status: 'success' as const,
+        bundleId: crypto.randomUUID(),
+        provenanceId: crypto.randomUUID(),
+        message: 'Bundle uploaded successfully'
+      };
       
       clearInterval(progressInterval);
       setUploadProgress(100);
       setUploadStatus('success');
-      setUploadResponse(response);
+      setUploadResponse(mockResponse);
       
       toast({
         title: "Upload Successful",

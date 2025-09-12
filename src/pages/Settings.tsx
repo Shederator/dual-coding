@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { getAdminStatus, triggerSync } from '@/lib/api';
 import { useMedical } from '@/contexts/MedicalContext';
 import type { AdminStatus } from '@/types/medical';
 import { 
@@ -34,8 +33,13 @@ export default function Settings() {
 
   const loadAdminStatus = async () => {
     try {
-      const status = await getAdminStatus();
-      setAdminStatus(status);
+      // Mock admin status
+      const mockStatus = {
+        namasteLastIngest: "2025-09-01T10:30:00Z",
+        whoLastSync: "2025-08-30T14:15:00Z",
+        systemHealth: 'healthy' as const
+      };
+      setAdminStatus(mockStatus);
     } catch (error) {
       toast({
         title: "Error",
@@ -50,11 +54,16 @@ export default function Settings() {
   const handleSync = async () => {
     setIsSyncing(true);
     try {
-      const response = await triggerSync();
-      if (response.status === 'success') {
+      // Mock sync response
+      const mockResponse = {
+        status: 'success' as const,
+        message: 'Synchronization completed successfully'
+      };
+      
+      if (mockResponse.status === 'success') {
         toast({
           title: "Sync Successful",
-          description: response.message,
+          description: mockResponse.message,
         });
         await loadAdminStatus(); // Refresh status
       }
